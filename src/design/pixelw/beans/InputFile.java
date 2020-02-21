@@ -8,7 +8,8 @@ import java.io.Serializable;
  */
 public class InputFile implements Serializable {
     private String name;
-    private boolean bypass;
+    private String extension;
+    private long creationTime;
 
     public String getName() {
         return name;
@@ -18,11 +19,19 @@ public class InputFile implements Serializable {
         this.name = name;
     }
 
-    public boolean isBypass() {
-        return bypass;
+    public long getCreationTime() {
+        return creationTime;
     }
 
-    public void setBypass(boolean bypass) {
-        this.bypass = bypass;
+    public void setCreationTime(long creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public String getExtension() {
+        return extension;
+    }
+
+    public void setExtension(String extension) {
+        this.extension = extension;
     }
 }

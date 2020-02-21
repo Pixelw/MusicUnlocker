@@ -1,7 +1,5 @@
 package design.pixelw;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import design.pixelw.beans.DecryptedFile;
 import design.pixelw.beans.InputFile;
@@ -20,7 +18,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
-import javax.crypto.Cipher;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,15 +29,14 @@ import java.util.List;
  */
 public class JFXApp extends Application {
 
-    private static Cipher cipher;
-    private List<File> filesInFolder;
-
+    private List<InputFile> inputFiles;
+    private File configFile = new File("./MUConfig.json");
+    private String lastPath;
 
     private Stage primaryStage;
     private FlowPane rootLayout;
 
-    public static void start(String[] args, Cipher cipher) {
-        JFXApp.cipher = cipher;
+    public static void start(String[] args) {
         launch(args);
     }
 
@@ -48,50 +44,8 @@ public class JFXApp extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         primaryStage.setTitle("Music Unlock");
-
         initLayout();
-    }
-
-    private void accessLogs() {
-        File file = new File("./config.json");
-        String fileStr;
-        if (file.exists()) {
-            try {
-                fileStr = FileIO.readTextFile(file);
-                resolveJson(fileStr);
-            } catch (IOException | MUException e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                FileIO.writeTextToFile(file,createJson(traversingFolder()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private String createJson(List<InputFile> list) {
-        return JSON.toJSONString(list);
-    }
-
-    private List<InputFile> traversingFolder() {
-        List<InputFile> inputFiles = new ArrayList<>();
-        for (File file: filesInFolder){
-            InputFile inputFile = new InputFile();
-            inputFile.setName(file.getName());
-            inputFile.setBypass(false);
-            inputFiles.add(inputFile);
-        }
-        return inputFiles;
-    }
-
-    private void resolveJson(String fileStr) {
-        List<InputFile> jsonFiles = JSONArray.parseArray(fileStr, InputFile.class);
-        for (InputFile inputFileObj : jsonFiles) {
-
-        }
-
+        loadPreference();
     }
 
     private void initLayout() {
@@ -115,21 +69,53 @@ public class JFXApp extends Application {
         textArea.setEditable(false);
     }
 
+    private void loadPreference() {
+        if (!configFile.exists()) {
+            return;
+        }
+        String json;
+        try {
+            json = FileIO.readTextFile(configFile);
+            JSONObject configJSON = JSONObject.parseObject(json);
+            lastPath = configJSON.getString("last_path");
+        } catch (IOException | MUException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     @FXML
     public void selectFolder(ActionEvent actionEvent) {
         File folder = FileIO.chooseFolder(primaryStage);
-        File[] files = folder.listFiles();
-        filesInFolder = new ArrayList<>();
+        if (folder == null) {
+            return;
+        }
+        File[] files = folder.listFiles();  //read all files in the folder
+        inputFiles = new ArrayList<>();
         if (files != null) {
             for (File file : files) {
                 String extension = FileIO.getExtension(file);
                 if (extension.equals("ncm") || extension.equals("qmc0") || extension.equals("qmc3")) {
-                    filesInFolder.add(file);
+                    textArea.appendText(file.getName() + "\n");
+                    InputFile inputFile = new InputFile();
+                    inputFile.setName(file.getName());
+                    inputFile.setExtension(extension);
+                    inputFile.setCreationTime(FileIO.readCreationTime(file));
+                    inputFiles.add(inputFile);
                 }
-                textArea.appendText(file.getName());
             }
+            savePreference(folder.getAbsolutePath());
         }
-        accessLogs();
+    }
+
+    private void savePreference(String absolutePath) {
+        JSONObject configJson = new JSONObject();
+        configJson.put("last_path", absolutePath);
+        try {
+            FileIO.writeTextToFile(configFile, configJson.toJSONString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void openAndProcessFiles() {
@@ -147,7 +133,7 @@ public class JFXApp extends Application {
             try {
                 switch (fileExt) {
                     case "ncm":
-                        decryptedFile = Ncm.decrypt(FileIO.loadBytes(inputFile), cipher);
+                        decryptedFile = Ncm.decrypt(FileIO.loadBytes(inputFile), Main.getCipher());
                         break;
                     case "qmc0":
                     case "qmc3":

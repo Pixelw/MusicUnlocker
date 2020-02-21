@@ -13,6 +13,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
 /**
@@ -109,6 +112,15 @@ public class FileIO {
         FileWriter fileWriter = new FileWriter(file);
         fileWriter.write(text);
         fileWriter.close();
+    }
+
+    public static long readCreationTime(File file) {
+        try {
+            return Files.readAttributes(Paths.get(file.toURI()), BasicFileAttributes.class).creationTime().toMillis();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
 
