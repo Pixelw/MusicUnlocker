@@ -10,6 +10,7 @@ public enum MUErrors {
     FILE_READ_FAILED(102,"读取失败"),
     FILE_TOO_LARGE(103,"文件过大"),
     AES_INIT_FAILED(104,"AES 初始化失败"),
+    TEXT_READ_FAILED(105,"Read text failed"),
 
     NCM_FILE_INVALID(201,"ncm 文件无效"),
     NCM_READ_KEY_FAILED(202,"无法读取密钥"),

@@ -2,6 +2,7 @@ package design.pixelw.utils;
 
 import design.pixelw.exception.MUErrors;
 import design.pixelw.exception.MUException;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -19,7 +20,6 @@ import java.util.List;
  */
 public class FileIO {
     private static final String defaultPath = FileSystemView.getFileSystemView().getHomeDirectory().getPath();
-
 
     //JavaFX
     public static File chooseFile(FileType fileType, Stage stage) {
@@ -46,6 +46,10 @@ public class FileIO {
         }
         fileChooser.setTitle("Open " + fileType.getFileExt());
         return fileChooser.showOpenMultipleDialog(stage);
+    }
+    public static File chooseFolder(Stage stage){
+        DirectoryChooser directoryChooser  = new DirectoryChooser();
+        return directoryChooser.showDialog(stage);
     }
 
     //Swing
@@ -83,6 +87,18 @@ public class FileIO {
             return chooser.getSelectedFiles();
         }
         return null;
+    }
+
+    public static String readTextFile(File file) throws IOException, MUException {
+        FileReader fileReader = new FileReader(file);
+        int length = (int) file.length();
+        char[] chars = new char[length];
+        int read = fileReader.read(chars);
+        if (length!= read){
+            throw new MUException(MUErrors.TEXT_READ_FAILED);
+        }
+        return new String(chars);
+
     }
 
 

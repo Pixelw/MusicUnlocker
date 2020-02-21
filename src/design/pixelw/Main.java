@@ -13,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class Main {
 
+    public static String jarPath;
     public static void main(String[] args) {
         //初始化AES cipher。此操作耗时较长，所以在启动时初始化
         Cipher cipher = null;
