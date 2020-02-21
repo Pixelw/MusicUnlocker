@@ -18,7 +18,7 @@ import java.util.Arrays;
 
 /**
  * @author  Carl Su
- * @date  2019.1.10
+ * @date  2020.1.10
  */
 
 public class Ncm {

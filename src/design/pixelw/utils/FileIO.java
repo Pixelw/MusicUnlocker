@@ -1,5 +1,6 @@
 package design.pixelw.utils;
 
+import com.sun.istack.internal.NotNull;
 import design.pixelw.exception.MUErrors;
 import design.pixelw.exception.MUException;
 import javafx.stage.DirectoryChooser;
@@ -16,7 +17,7 @@ import java.util.List;
 
 /**
  * @author Carl Su
- * @date 2019.1.10
+ * @date 2020.1.10
  */
 public class FileIO {
     private static final String defaultPath = FileSystemView.getFileSystemView().getHomeDirectory().getPath();
@@ -26,10 +27,10 @@ public class FileIO {
         FileChooser fileChooser = new FileChooser();
         if (fileType == FileType.supportedEncrypted) {
             fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter("所有支持的加密格式","*.ncm","*.qmc0","*.qmc3")
+                    new FileChooser.ExtensionFilter("所有支持的加密格式", "*.ncm", "*.qmc0", "*.qmc3")
             );
         } else {
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(fileType.getDescription(),"*."+fileType.getFileExt()));
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(fileType.getDescription(), "*." + fileType.getFileExt()));
         }
         fileChooser.setTitle("Open " + fileType.getFileExt());
         return fileChooser.showOpenDialog(stage);
@@ -39,21 +40,22 @@ public class FileIO {
         FileChooser fileChooser = new FileChooser();
         if (fileType == FileType.supportedEncrypted) {
             fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter("所有支持的加密格式","*.ncm","*.qmc0","*.qmc3")
+                    new FileChooser.ExtensionFilter("所有支持的加密格式", "*.ncm", "*.qmc0", "*.qmc3")
             );
         } else {
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(fileType.getDescription(),"*."+fileType.getFileExt()));
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(fileType.getDescription(), "*." + fileType.getFileExt()));
         }
         fileChooser.setTitle("Open " + fileType.getFileExt());
         return fileChooser.showOpenMultipleDialog(stage);
     }
-    public static File chooseFolder(Stage stage){
-        DirectoryChooser directoryChooser  = new DirectoryChooser();
+
+    public static File chooseFolder(Stage stage) {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
         return directoryChooser.showDialog(stage);
     }
 
     //Swing
-    public static File chooseFile(FileType fileType, Component parent){
+    public static File chooseFile(FileType fileType, Component parent) {
         JFileChooser chooser = new JFileChooser(defaultPath);
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setMultiSelectionEnabled(false);
@@ -71,7 +73,7 @@ public class FileIO {
         return null;
     }
 
-    public static File[] chooseFiles(FileType fileType, Component parent){
+    public static File[] chooseFiles(FileType fileType, Component parent) {
         JFileChooser chooser = new JFileChooser(defaultPath);
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setMultiSelectionEnabled(true);
@@ -89,16 +91,24 @@ public class FileIO {
         return null;
     }
 
-    public static String readTextFile(File file) throws IOException, MUException {
+    public static String readTextFile(@NotNull File file) throws IOException, MUException {
+        System.out.println("Reading: "+ file.getAbsolutePath());
         FileReader fileReader = new FileReader(file);
         int length = (int) file.length();
         char[] chars = new char[length];
-        int read = fileReader.read(chars);
-        if (length!= read){
-            throw new MUException(MUErrors.TEXT_READ_FAILED);
-        }
+        fileReader.read(chars);
+//        if (length != read) {
+//            throw new MUException(MUErrors.TEXT_READ_FAILED);
+//        }
+        fileReader.close();
         return new String(chars);
+    }
 
+    public static void writeTextToFile(@NotNull File file, String text) throws IOException {
+        System.out.println("writing:"+file.getAbsolutePath());
+        FileWriter fileWriter = new FileWriter(file);
+        fileWriter.write(text);
+        fileWriter.close();
     }
 
 
@@ -147,7 +157,7 @@ public class FileIO {
         return bytes;
     }
 
-    public static String getExtension(File file){
+    public static String getExtension(File file) {
         String fileName = file.getName().toLowerCase();
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }

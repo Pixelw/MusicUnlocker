@@ -2,7 +2,7 @@ package design.pixelw.utils;
 
 /**
  * @author  Carl Su
- * @date  2019.1.10
+ * @date  2020.1.10
  */
 
 public enum FileType {

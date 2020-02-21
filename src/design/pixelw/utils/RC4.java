@@ -2,7 +2,7 @@ package design.pixelw.utils;
 
 /**
  * @author  Carl Su
- * @date  2019.1.14
+ * @date  2020.1.14
  */
 
 public class RC4 {

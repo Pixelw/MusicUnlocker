@@ -1,10 +1,12 @@
 package design.pixelw.beans;
 
+import java.io.Serializable;
+
 /**
  * @author Carl Su
  * @date 2020/1/27
  */
-public class InputFile {
+public class InputFile implements Serializable {
     private String name;
     private boolean bypass;
 

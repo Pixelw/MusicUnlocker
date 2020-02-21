@@ -1,5 +1,6 @@
 package design.pixelw;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import design.pixelw.beans.DecryptedFile;
@@ -32,6 +33,8 @@ import java.util.List;
 public class JFXApp extends Application {
 
     private static Cipher cipher;
+    private List<File> filesInFolder;
+
 
     private Stage primaryStage;
     private FlowPane rootLayout;
@@ -47,7 +50,6 @@ public class JFXApp extends Application {
         primaryStage.setTitle("Music Unlock");
 
         initLayout();
-        accessLogs();
     }
 
     private void accessLogs() {
@@ -60,13 +62,34 @@ public class JFXApp extends Application {
             } catch (IOException | MUException e) {
                 e.printStackTrace();
             }
+        } else {
+            try {
+                FileIO.writeTextToFile(file,createJson(traversingFolder()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    private String createJson(List<InputFile> list) {
+        return JSON.toJSONString(list);
+    }
+
+    private List<InputFile> traversingFolder() {
+        List<InputFile> inputFiles = new ArrayList<>();
+        for (File file: filesInFolder){
+            InputFile inputFile = new InputFile();
+            inputFile.setName(file.getName());
+            inputFile.setBypass(false);
+            inputFiles.add(inputFile);
+        }
+        return inputFiles;
     }
 
     private void resolveJson(String fileStr) {
         List<InputFile> jsonFiles = JSONArray.parseArray(fileStr, InputFile.class);
         for (InputFile inputFileObj : jsonFiles) {
-            inputFileObj = JSONObject.parseObject(fileStr, InputFile.class);
+
         }
 
     }
@@ -95,17 +118,18 @@ public class JFXApp extends Application {
     @FXML
     public void selectFolder(ActionEvent actionEvent) {
         File folder = FileIO.chooseFolder(primaryStage);
-        File[] filesInFolders = folder.listFiles();
-        List<File> fileList = new ArrayList<>();
-        if (filesInFolders != null) {
-            for(File file:filesInFolders){
+        File[] files = folder.listFiles();
+        filesInFolder = new ArrayList<>();
+        if (files != null) {
+            for (File file : files) {
                 String extension = FileIO.getExtension(file);
-                if (extension.equals("ncm") || extension.equals("qmc0")|| extension.equals("qmc3")){
-                    fileList.add(file);
+                if (extension.equals("ncm") || extension.equals("qmc0") || extension.equals("qmc3")) {
+                    filesInFolder.add(file);
                 }
                 textArea.appendText(file.getName());
             }
         }
+        accessLogs();
     }
 
     private void openAndProcessFiles() {
