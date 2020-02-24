@@ -47,7 +47,7 @@ public class App extends Application {
         this.selectedFiles = selectedFiles;
     }
 
-    private File configFile = new File("./MUConfig.json");
+    private File configFile = new File("MUConfig.json");
     private File outputFolder;
 
     public static void start(String[] args) {
