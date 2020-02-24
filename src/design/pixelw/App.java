@@ -66,12 +66,16 @@ public class App extends Application {
 
     //加载配置
     public void loadPreference() {
-        if (!configFile.exists()) {
-            return;
-        }
-        String json;
         try {
-            json = FileIO.readTextFile(configFile);
+            if (!configFile.exists()) {
+                writeJson("last_path","",new JSONObject());
+                writeJson("last_out_path","",new JSONObject());
+                return;
+            }
+            String json = FileIO.readTextFile(configFile);
+            if (!JSONObject.isValid(json)){
+                return;
+            }
             JSONObject configJSON = JSONObject.parseObject(json);
             String lastPath = configJSON.getString("last_path");
             if (lastPath != null) {
@@ -85,8 +89,6 @@ public class App extends Application {
                 controller.setOutputFolder(lastOutPath);
                 setOutputFolder(new File(lastOutPath));
             }
-
-
         } catch (IOException | MUException e) {
             e.printStackTrace();
         }
@@ -98,17 +100,34 @@ public class App extends Application {
      */
     public void savePreference(String key, String value) {
         try {
-            JSONObject configJson = JSON.parseObject(FileIO.readTextFile(configFile));
-            if (configJson.containsKey(key)) {
-                configJson.replace(key, value);
+            JSONObject configJson;
+            if (configFile.exists()) {
+                String string = FileIO.readTextFile(configFile);
+                if (JSONObject.isValid(string)){
+                    configJson = JSONObject.parseObject(string);
+                    writeJson(key, value, configJson);
+                }else {
+                    configJson = new JSONObject();
+                    writeJson(key, value, configJson);
+                }
             } else {
-                configJson.put(key, value);
+                configJson = new JSONObject();
+                writeJson(key, value, configJson);
             }
-            FileIO.writeTextToFile(configFile, configJson.toJSONString());
+
         } catch (IOException | MUException e) {
             e.printStackTrace();
         }
 
+    }
+
+    private void writeJson(String key, String value, JSONObject configJson) throws IOException {
+        if (configJson.containsKey(key)) {
+            configJson.replace(key, value);
+        } else {
+            configJson.put(key, value);
+        }
+        FileIO.writeTextToFile(configFile, configJson.toJSONString());
     }
 
     //布局初始化
