@@ -17,6 +17,7 @@ import java.security.InvalidKeyException;
 import java.util.Arrays;
 
 /**
+ * ncm解码
  * @author  Carl Su
  * @date  2020.1.10
  */
@@ -26,21 +27,40 @@ public class Ncm {
     private static final byte[] CORE_KEY = {104, 122, 72, 82, 65, 109, 115, 111, 53, 107, 73, 110, 98, 97, 120, 87};
     private static final byte[] META_KEY = {35, 49, 52, 108, 106, 107, 95, 33, 92, 93, 38, 48, 85, 60, 39, 40};
 
-
     private JDataView dataView;
     private int offset;
     private static Cipher cipher;
 
+    /**
+     * RamdomAccessFile方式
+     * @param file 文件
+     * @param cipher AES
+     * @throws FileNotFoundException
+     */
     private Ncm(File file,Cipher cipher) throws FileNotFoundException {
         dataView = new JDataView(file, "r");
         Ncm.cipher = cipher;
     }
 
+    /**
+     * 读取至buffer方式
+     * @param bytes buffer
+     * @param cipher AES
+     */
     private Ncm(byte[] bytes, Cipher cipher){
         dataView = new JDataView(bytes);
         Ncm.cipher = cipher;
     }
 
+    /**
+     * 直接解码的静态方法
+     * @param file 文件
+     * @param cipher AES
+     * @return 解码后的文件
+     * @see DecryptedFile
+     *
+     * @throws Exception 中途的异常
+     */
     public static DecryptedFile decrypt(File file, Cipher cipher) throws Exception{
         Ncm ncm = new Ncm(file,cipher);
         return ncm.decryptStraight();
@@ -61,11 +81,17 @@ public class Ncm {
 //        return readAudioData(keyBox);
 //    }
 
+    /**
+     * 不重构meta直接解码
+     * @return 解码文件
+     * @throws Exception 异常
+     */
     private DecryptedFile decryptStraight() throws Exception {
         offset = 0;
         if (invalidNcm()) {
             throw new MUException(MUErrors.NCM_FILE_INVALID);
         }
+        //读取密钥
         byte[] keyBox = readKey();
         //skip meta data chunk
         int metaDataLen = (int) dataView.getUint32(offset, true);
@@ -82,6 +108,12 @@ public class Ncm {
         return !Arrays.equals(readHeader, NCM_HEADER);
     }
 
+    /**
+     * 解码音频流
+     * @param keyBox S-box
+     * @return  buffer
+     * @throws IOException 异常
+     */
     private byte[] readAudioData(byte[] keyBox) throws IOException {
         offset += dataView.getUint32(offset + 5, true) + 13;
         byte[] audioData = dataView.readRestBytes(offset);

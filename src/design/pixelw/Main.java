@@ -25,7 +25,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        new Thread(() -> JFXApp.start(args)).start();
+        new Thread(() -> App.start(args)).start();
         //初始化AES cipher。此操作耗时较长，所以在启动时初始化
         try {
             cipher = AES.getCipher();

@@ -14,6 +14,7 @@ import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
@@ -149,6 +150,17 @@ public class FileIO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static void outputToFolder(File folder, String newFileName, byte[] bytes) throws IOException {
+        if(!folder.isDirectory()){
+            throw new NotDirectoryException(folder.getAbsolutePath());
+        }
+        File file = new File(folder,newFileName);
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(bytes);
+        fos.flush();
+        fos.close();
     }
 
 

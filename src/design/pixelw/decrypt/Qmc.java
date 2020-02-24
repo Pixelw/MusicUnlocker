@@ -6,6 +6,7 @@ import design.pixelw.exception.MUException;
 import design.pixelw.utils.FileType;
 
 /**
+ * qmc解码
  * @author Carl Su
  * @date 2020/1/16
  */
@@ -24,6 +25,7 @@ public class Qmc {
     public static DecryptedFile decrypt(byte[] audioData, String fileExt) throws MUException {
         byte[] decrypted = readAudioData(audioData);
         FileType fileType;
+        //判断文件类型（基于扩展名
         switch (fileExt) {
             case "qmc0":
             case "qmc3":
@@ -41,6 +43,11 @@ public class Qmc {
         return new DecryptedFile(fileType,decrypted);
     }
 
+    /**
+     * 读取并按照mask变换buffer
+     * @param audioData 音频数据的buffer
+     * @return 解码后的buffer
+     */
     private static byte[] readAudioData(byte[] audioData) {
         Mask seed = new Mask();
         for (int cur = 0; cur < audioData.length; ++cur) {

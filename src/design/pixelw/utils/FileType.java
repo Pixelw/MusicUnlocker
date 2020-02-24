@@ -6,6 +6,8 @@ package design.pixelw.utils;
  */
 
 public enum FileType {
+    open("open","open"),
+    save("save","save"),
 
     ncm("ncm", "网易云音乐加密格式"),
     qmc0("qmc0", "QQ音乐加密格式"),

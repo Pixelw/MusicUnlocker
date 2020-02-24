@@ -11,6 +11,12 @@ public class InputFile implements Serializable {
     private String extension;
     private long creationTime;
 
+    public InputFile(String name, String extension, long creationTime) {
+        this.name = name;
+        this.extension = extension;
+        this.creationTime = creationTime;
+    }
+
     public String getName() {
         return name;
     }
