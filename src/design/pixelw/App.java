@@ -1,5 +1,6 @@
 package design.pixelw;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import design.pixelw.beans.DecryptedFile;
 import design.pixelw.beans.JFXInputFile;
@@ -73,10 +74,19 @@ public class App extends Application {
             json = FileIO.readTextFile(configFile);
             JSONObject configJSON = JSONObject.parseObject(json);
             String lastPath = configJSON.getString("last_path");
-            File folder = new File(lastPath);
-            if (folder.exists() && folder.isDirectory()) {
-                readFolder(folder);
+            if (lastPath != null) {
+                File folder = new File(lastPath);
+                if (folder.exists() && folder.isDirectory()) {
+                    readFolder(folder);
+                }
             }
+            String lastOutPath = configJSON.getString("last_out_path");
+            if (lastOutPath != null) {
+                controller.setOutputFolder(lastOutPath);
+                setOutputFolder(new File(lastOutPath));
+            }
+
+
         } catch (IOException | MUException e) {
             e.printStackTrace();
         }
@@ -85,17 +95,20 @@ public class App extends Application {
 
     /**
      * 保存配置（记忆本次打开的文件夹）
-     *
-     * @param absolutePath 文件夹的绝对目录
      */
-    public void savePreference(String absolutePath) {
-        JSONObject configJson = new JSONObject();
-        configJson.put("last_path", absolutePath);
+    public void savePreference(String key, String value) {
         try {
+            JSONObject configJson = JSON.parseObject(FileIO.readTextFile(configFile));
+            if (configJson.containsKey(key)) {
+                configJson.replace(key, value);
+            } else {
+                configJson.put(key, value);
+            }
             FileIO.writeTextToFile(configFile, configJson.toJSONString());
-        } catch (IOException e) {
+        } catch (IOException | MUException e) {
             e.printStackTrace();
         }
+
     }
 
     //布局初始化
@@ -161,7 +174,7 @@ public class App extends Application {
                 }
                 String newFileName = item.getName().substring(0, item.getName().lastIndexOf(".") + 1)
                         + decryptedFile.getFileType().getFileExt();
-                FileIO.outputToFolder(outputFolder,newFileName,decryptedFile.getStreamData());
+                FileIO.outputToFolder(outputFolder, newFileName, decryptedFile.getStreamData());
 //                FileIO.outputBesideInput(item.getFile(), decryptedFile.getStreamData(), decryptedFile.getFileType());
                 long finishTime = System.currentTimeMillis();
                 System.out.println("Finished in " + (finishTime - beginTime) + " ms\n");
@@ -189,11 +202,12 @@ public class App extends Application {
         }
         switch (type) {
             case open:
-                savePreference(folder.getAbsolutePath());
+                savePreference("last_path", folder.getAbsolutePath());
                 readFolder(folder);
                 break;
             case save:
                 setOutputFolder(folder);
+                savePreference("last_out_path", folder.getAbsolutePath());
                 return outputFolder.getAbsolutePath();
         }
         return folder.getAbsolutePath();

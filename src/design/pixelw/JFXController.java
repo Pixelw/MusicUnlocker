@@ -1,7 +1,6 @@
 package design.pixelw;
 
 import design.pixelw.beans.JFXInputFile;
-import design.pixelw.utils.FileIO;
 import design.pixelw.utils.FileType;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,8 +9,6 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-
-import java.io.File;
 
 /**
  * @author Carl Su
@@ -41,6 +38,12 @@ public class JFXController {
 
     public void setFolderPath(String path){
         selectFolder.setText(path);
+    }
+    public void setOutputFolder(String path){
+        if (path != null){
+            String string = "输出到:\n" + path;
+            outputTo.setText(string);
+        }
     }
 
     @FXML
